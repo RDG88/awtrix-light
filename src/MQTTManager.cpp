@@ -180,6 +180,15 @@ void onMqttMessage(const char *topic, const uint8_t *payload, uint16_t length)
         return;
     }
 
+    if (strTopic.equals(MQTT_PREFIX + "/sendscreen")) 
+    {
+        MQTTManager.beginPublish((MQTT_PREFIX + "/screen").c_str(), strlen(DisplayManager.ledsAsJson().c_str()), false);
+        MQTTManager.writePayload(DisplayManager.ledsAsJson().c_str(), strlen(DisplayManager.ledsAsJson().c_str()));
+        MQTTManager.endPublish();
+        delete[] payloadCopy;
+        return;
+    }
+
     if (strTopic.equals(MQTT_PREFIX + "/notify/dismiss"))
     {
         DisplayManager.dismissNotify();
@@ -307,8 +316,8 @@ void onMqttMessage(const char *topic, const uint8_t *payload, uint16_t length)
         delete[] payloadCopy;
         return;
     }
-    DEBUG_PRINTLN(F("Unknown MQTT command!"));
-}
+        DEBUG_PRINTLN(F("Unknown MQTT command!"));
+    }
 
 void onMqttConnected()
 {
@@ -336,6 +345,7 @@ void onMqttConnected()
         "/reboot",
         "/moodlight",
         "/sound",
+        "/sendscreen",
         "/sendIMG"};
     for (const char *topic : topics)
     {
